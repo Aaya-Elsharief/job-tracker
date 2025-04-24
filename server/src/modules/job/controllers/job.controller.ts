@@ -35,3 +35,20 @@ export const createJob = async (
     next(err); // Pass the error to the error handler
   }
 };
+
+
+export const listJobs = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {   
+  try{
+    const jobs = await Job.find();
+    if (!jobs) {
+      throw new NotFoundError('No jobs found');
+    }
+    return SuccessResponse(res, jobs);
+  }catch(err){  
+    next(err); // Pass the error to the error handler
+  }
+}
