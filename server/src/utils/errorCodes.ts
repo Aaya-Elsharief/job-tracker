@@ -27,7 +27,14 @@ export const ErrorMessages = {
     'only' : {
       en: 'Must be one of the allowed values',
       ar: 'يجب أن يكون أحد القيم المسموح بها',
-    }
-    // Add others as needed
+    },
+    'emailExists': {
+      en: 'Email already exists',
+      ar: 'الايميل موجود بالفعل',
+    },
+    'userNotFound': {
+      en: 'User not found',
+      ar: 'المستخدم غير موجود',
+    },
   };
   
