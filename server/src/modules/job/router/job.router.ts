@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { createJob } from '../controllers/job.controller';
+import { createJob, listJobs } from '../controllers/job.controller';
 
 const jobRouter = Router();
 
 jobRouter.post('/', createJob);
+jobRouter.get('/', listJobs)
 
 export default jobRouter;
