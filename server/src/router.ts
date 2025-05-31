@@ -1,6 +1,6 @@
 import jobRouter from './modules/job/router/job.router';
 import userRouter from './modules/user/router/user.router';
-import { asyncRouter } from './utils/asyncRouter';
+import { asyncRouter } from './utils/handlers/asyncRouter';
 
 const router = asyncRouter();
 

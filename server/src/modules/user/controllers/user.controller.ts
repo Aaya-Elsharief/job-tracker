@@ -3,7 +3,7 @@ import User, { IUser } from '../models/user.model';
 import { userValidationSchema } from '../validators/user.validator';
 import { BadRequestError } from '../../../utils/errors/http.error';
 import { formatJoiError } from '../../../utils/errors/errorFormatter';
-import { SuccessResponse } from '../../../utils/successResponse';
+import { SuccessResponse } from '../../../utils/responses/successResponse';
 import { ErrorMessages } from '../../../utils/errorCodes';
 import jwt, { Secret } from 'jsonwebtoken';
 
@@ -17,10 +17,7 @@ export const createUser = async (
     const { error, value } = userValidationSchema.validate(body);
 
     if (error) {
-      throw new BadRequestError('Validation failed', {
-        code: 'INVALID_PARAMS',
-        fields: formatJoiError(error),
-      });
+      throw new BadRequestError(formatJoiError(error));
     }
 
     // Check if the user already exists
@@ -28,11 +25,8 @@ export const createUser = async (
       email: value.email,
     });
     if (existingUser) {
-      throw new BadRequestError('User already exists', {
-        code: 'USER_ALREADY_EXISTS',
-        fields: {
-          email: ErrorMessages.emailExists,
-        },
+      throw new BadRequestError({
+        email: ErrorMessages.emailExists,
       });
     }
 

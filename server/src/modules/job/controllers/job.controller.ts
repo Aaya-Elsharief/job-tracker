@@ -6,7 +6,7 @@ import {
   NotFoundError,
 } from '../../../utils/errors/http.error';
 import { formatJoiError } from '../../../utils/errors/errorFormatter';
-import { SuccessResponse } from '../../../utils/successResponse';
+import { SuccessResponse } from '../../../utils/responses/successResponse';
 
 export const createJob = async (
   req: Request,
@@ -20,35 +20,31 @@ export const createJob = async (
 
     if (error) {
       const formattedErrors = formatJoiError(error); // Transform errors here
-      throw new BadRequestError('Validation failed', {
-        code: 'INVALID_PARAMS',
-        fields: formattedErrors,
-      });
+      throw new BadRequestError(formattedErrors);
     }
 
     // Create a new job using the validated data
     const newJob = new Job(value);
     await newJob.save();
 
-   return  SuccessResponse(res, newJob);
+    return SuccessResponse(res, newJob);
   } catch (err) {
     next(err); // Pass the error to the error handler
   }
 };
 
-
 export const listJobs = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {   
-  try{
+) => {
+  try {
     const jobs = await Job.find();
     if (!jobs) {
-      throw new NotFoundError('No jobs found');
+      throw new NotFoundError();
     }
     return SuccessResponse(res, jobs);
-  }catch(err){  
+  } catch (err) {
     next(err); // Pass the error to the error handler
   }
-}
+};
