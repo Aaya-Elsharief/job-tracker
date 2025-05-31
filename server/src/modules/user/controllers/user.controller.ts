@@ -6,6 +6,8 @@ import { formatJoiError } from '../../../utils/errors/errorFormatter';
 import { SuccessResponse } from '../../../utils/responses/successResponse';
 import { ErrorMessages } from '../../../utils/errorCodes';
 import jwt, { Secret } from 'jsonwebtoken';
+import { compare } from 'bcryptjs';
+import { userLoginSchema } from '../validators/userLogin.validator';
 
 export const createUser = async (
   req: Request,
@@ -36,6 +38,40 @@ export const createUser = async (
     const accessToken = generateAuthToken(newUser._id.toString());
     const { password, ...user } = newUser.toObject();
     return SuccessResponse(res, { user, accessToken });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email, password } = req.body;
+    const { error } = userLoginSchema.validate({ email, password });
+    if (error) {
+      throw new BadRequestError(formatJoiError(error));
+    }
+    // Find the user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new BadRequestError({
+        email: ErrorMessages.userNotFound,
+      });
+    }
+    // Check if the password matches
+    const isPasswordValid = await compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new BadRequestError({
+        password: ErrorMessages.passwordMismatch
+      });
+    }
+    // Generate an access token
+    const accessToken = generateAuthToken(user._id.toString());
+    const { password: userPassword, ...userData } = user.toObject();
+    return SuccessResponse(res, { user: userData, accessToken });
   } catch (err) {
     next(err);
   }
