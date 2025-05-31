@@ -1,7 +1,7 @@
 // utils/errorFormatter.ts
 
 import Joi from 'joi';
-import { ErrorMessages } from '../errorCodes';
+import { ErrorMessages } from '../responses/errorMessages';
 
 export const formatJoiError = (joiError: Joi.ValidationError) => {
   const formattedErrors: any = {};
