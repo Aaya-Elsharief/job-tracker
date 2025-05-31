@@ -17,8 +17,7 @@ export const errorHandler = (
       error: err.code,
       data: {},
       feedback: {
-        message: err.message,
-        ...(err.details && { ...err.details }),
+        ...(err.feedback && { ...err.feedback }),
       },
     });
   }
@@ -30,7 +29,6 @@ export const errorHandler = (
     error: 'InternalServerError',
     data: {},
     feedback: {
-      message: HttpStatus['500_MESSAGE'],
     },
   });
 };
