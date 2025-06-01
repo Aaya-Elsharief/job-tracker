@@ -1,5 +1,5 @@
 import HttpStatus from 'http-status';
-import { errorCodes } from '../responses/errorCodes';
+import { ErrorCodes } from '../responses';
 
 interface Feedback {
   code: string;
@@ -30,7 +30,7 @@ export class HttpError extends Error {
 
 export class BadRequestError extends HttpError {
   constructor(fields: Record<string, any>) {
-    const base = errorCodes.INVALID_PARAMS;
+    const base = ErrorCodes.INVALID_PARAMS;
     const feedback: Feedback = {
       code: base.code,
       message: base.message,
@@ -42,7 +42,7 @@ export class BadRequestError extends HttpError {
 
 export class NotFoundError extends HttpError {
   constructor() {
-    const base = errorCodes.NOT_FOUND;
+    const base = ErrorCodes.NOT_FOUND;
     const feedback: Feedback = {
       code: base.code,
       message: base.message,
@@ -53,7 +53,7 @@ export class NotFoundError extends HttpError {
 
 export class NoDataFoundError extends HttpError {
   constructor() {
-    const base = errorCodes.NO_DATA_FOUND;
+    const base = ErrorCodes.NO_DATA_FOUND;
     const feedback: Feedback = {
       code: base.code,
       message: base.message,
@@ -64,7 +64,7 @@ export class NoDataFoundError extends HttpError {
 
 export class UnauthorizedError extends HttpError {
   constructor() {
-    const base = errorCodes.UNAUTHORIZED;
+    const base = ErrorCodes.UNAUTHORIZED;
     const feedback: Feedback = {
       code: base.code,
       message: base.message,
@@ -75,7 +75,7 @@ export class UnauthorizedError extends HttpError {
 
 export class ForbiddenError extends HttpError {
   constructor() {
-    const base = errorCodes.FORBIDDEN;
+    const base = ErrorCodes.FORBIDDEN;
     const feedback: Feedback = {
       code: base.code,
       message: base.message,
@@ -86,7 +86,7 @@ export class ForbiddenError extends HttpError {
 
 export class InternalServerError extends HttpError {
   constructor() {
-    const base = errorCodes.INTERNAL_SERVER_ERROR;
+    const base = ErrorCodes.INTERNAL_SERVER_ERROR;
     const feedback: Feedback = {
       code: base.code,
       message: base.message,

@@ -4,8 +4,8 @@ import compression from 'compression';
 import dotenv from 'dotenv';
 import connectionDB from './config/database/connection';
 import router from './router';
-import { errorHandler } from './utils/middlewares/error.middleware';
-import { NotFoundError } from './utils/errors/http.error';
+import { errorHandler } from './utils/middlewares/';
+import { NotFoundError } from './utils/errors/';
 dotenv.config();
 
 const app = express();

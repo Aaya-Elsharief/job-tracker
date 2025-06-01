@@ -1,13 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
-import User, { IUser } from '../models/user.model';
-import { userValidationSchema } from '../validators/user.validator';
+import { compare } from 'bcryptjs';
+import { User, IUser } from '../models';
+import { userValidationSchema, userLoginSchema } from '../validators';
 import { BadRequestError } from '../../../utils/errors/http.error';
 import { formatJoiError } from '../../../utils/errors/errorFormatter';
 import { SuccessResponse } from '../../../utils/responses/successResponse';
-import { ErrorMessages } from '../../../utils/errorCodes';
-import jwt, { Secret } from 'jsonwebtoken';
-import { compare } from 'bcryptjs';
-import { userLoginSchema } from '../validators/userLogin.validator';
+import generatToken from '../../../utils/jwt/generatToken';
+import { ErrorMessages } from '../../../utils/responses/errorMessages';
 
 export const createUser = async (
   req: Request,
@@ -35,7 +34,7 @@ export const createUser = async (
     const newUser = new User(value);
     await newUser.save();
     //access token
-    const accessToken = generateAuthToken(newUser._id.toString());
+    const accessToken = generatToken(newUser._id.toString());
     const { password, ...user } = newUser.toObject();
     return SuccessResponse(res, { user, accessToken });
   } catch (err) {
@@ -65,20 +64,30 @@ export const loginUser = async (
     const isPasswordValid = await compare(password, user.password);
     if (!isPasswordValid) {
       throw new BadRequestError({
-        password: ErrorMessages.passwordMismatch
+        password: ErrorMessages.passwordMismatch,
       });
     }
     // Generate an access token
-    const accessToken = generateAuthToken(user._id.toString());
+    const accessToken = await generatToken(user._id.toString());
     const { password: userPassword, ...userData } = user.toObject();
     return SuccessResponse(res, { user: userData, accessToken });
   } catch (err) {
     next(err);
   }
 };
-const generateAuthToken = (id: string) => {
-  const token = jwt.sign({ id }, process.env.JWT_SECRET as Secret, {
-    expiresIn: '1h',
-  });
-  return token;
+
+export const getUser = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).select('-password');
+    if (!user) {
+      throw new BadRequestError({
+        user: ErrorMessages.userNotFound,
+      });
+    }
+
+    return SuccessResponse(res, { user });
+  } catch (err) {
+    next(err);
+  }
 };

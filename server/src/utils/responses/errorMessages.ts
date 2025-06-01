@@ -47,4 +47,8 @@ export const ErrorMessages = {
     en: 'Invalid password',
     ar: 'كلمة المرور غير صحيحة',
   },
+  passwordMismatch: {
+    en: 'Passwords do not match',
+    ar: 'كلمات المرور غير متطابقة',
+  },
 };

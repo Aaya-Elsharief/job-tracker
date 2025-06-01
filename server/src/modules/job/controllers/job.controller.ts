@@ -1,12 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import Job from '../models/job.model';
 import { jobValidationSchema } from '../validators/job.validator';
-import {
-  BadRequestError,
-  NotFoundError,
-} from '../../../utils/errors/http.error';
-import { formatJoiError } from '../../../utils/errors/errorFormatter';
-import { SuccessResponse } from '../../../utils/responses/successResponse';
+import { BadRequestError, NotFoundError, formatJoiError } from '../../../utils/errors/';
+import { SuccessResponse } from '../../../utils/responses/';
 
 export const createJob = async (
   req: Request,
