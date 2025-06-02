@@ -1,5 +1,5 @@
 import { ErrorCodes } from './errorCodes';
-import { SuccessResponse } from './successResponse';
+import { SuccessResponse, SuccessMessages } from './successResponse';
 import { ErrorMessages } from './errorMessages';
 
-export { ErrorCodes, SuccessResponse, ErrorMessages };
+export { ErrorCodes, SuccessResponse, ErrorMessages, SuccessMessages };
