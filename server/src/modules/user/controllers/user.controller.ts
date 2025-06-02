@@ -1,12 +1,19 @@
 import { NextFunction, Request, Response } from 'express';
 import { compare } from 'bcryptjs';
 import { User, IUser } from '../models';
-import { userValidationSchema, userLoginSchema } from '../validators';
-import { BadRequestError } from '../../../utils/errors/http.error';
-import { formatJoiError } from '../../../utils/errors/errorFormatter';
-import { SuccessResponse } from '../../../utils/responses/successResponse';
+import {
+  userValidationSchema,
+  userLoginSchema,
+  emailValidationSchema,
+} from '../validators';
+import { BadRequestError, formatJoiError } from '../../../utils/errors/';
+import {
+  SuccessMessages,
+  SuccessResponse,
+  ErrorMessages,
+} from '../../../utils/responses/';
 import generatToken from '../../../utils/jwt/generatToken';
-import { ErrorMessages } from '../../../utils/responses/errorMessages';
+import { sendMail } from '../../../utils/mail/sendEmail';
 
 export const createUser = async (
   req: Request,
@@ -87,6 +94,38 @@ export const getUser = async (req: any, res: Response, next: NextFunction) => {
     }
 
     return SuccessResponse(res, { user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const forgetPassword = async (
+  req: any,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email } = req.body;
+    const { error } = emailValidationSchema.validate({ email });
+    if (error) {
+      throw new BadRequestError(formatJoiError(error));
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new BadRequestError({
+        email: ErrorMessages.userNotFound,
+      });
+    }
+
+    // generate reset token
+    const resetToken = await generatToken(user._id.toString(), '1h');
+
+    const link = 'front-end-url-reset-password';
+    const resetURL = `/${link}?token=${resetToken}`;
+    sendMail(email, resetURL, 'Reset your password');
+
+    return SuccessResponse(res, { message: SuccessMessages.checkYourMail });
   } catch (err) {
     next(err);
   }

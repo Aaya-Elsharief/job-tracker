@@ -1,4 +1,4 @@
-import { userValidationSchema } from "./user.validator";
-import { userLoginSchema } from "./userLogin.validator";
+import { userValidationSchema, emailValidationSchema } from './user.validator';
+import { userLoginSchema } from './userLogin.validator';
 
-export { userValidationSchema, userLoginSchema };
+export { userValidationSchema, userLoginSchema, emailValidationSchema };
