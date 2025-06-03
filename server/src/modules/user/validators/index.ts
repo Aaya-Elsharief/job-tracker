@@ -1,4 +1,10 @@
-import { userValidationSchema, emailValidationSchema } from './user.validator';
+import { userValidationSchema } from './user.validator';
 import { userLoginSchema } from './userLogin.validator';
-
-export { userValidationSchema, userLoginSchema, emailValidationSchema };
+import { resetPasswordSchema } from './resetPassword.validator';
+import { emailValidationSchema } from './email.validator';
+export {
+  userValidationSchema,
+  userLoginSchema,
+  emailValidationSchema,
+  resetPasswordSchema,
+};

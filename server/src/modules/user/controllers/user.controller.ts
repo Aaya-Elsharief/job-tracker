@@ -5,6 +5,7 @@ import {
   userValidationSchema,
   userLoginSchema,
   emailValidationSchema,
+  resetPasswordSchema,
 } from '../validators';
 import { BadRequestError, formatJoiError } from '../../../utils/errors/';
 import {
@@ -126,6 +127,39 @@ export const forgetPassword = async (
     sendMail(email, resetURL, 'Reset your password');
 
     return SuccessResponse(res, { message: SuccessMessages.checkYourMail });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const resetPassword = async (
+  req: any,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { newPassword, confirmPassword } = req.body;
+    const { id } = req.user;
+    const { error } = resetPasswordSchema.validate({
+      newPassword,
+      confirmPassword,
+    });
+    if (error) {
+      throw new BadRequestError(formatJoiError(error));
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      throw new BadRequestError({
+        user: ErrorMessages.userNotFound,
+      });
+    }
+
+    // Update the user's password
+    user.password = newPassword;
+    await user.save();
+
+    return SuccessResponse(res, { message: SuccessMessages.passwordChanged });
   } catch (err) {
     next(err);
   }
