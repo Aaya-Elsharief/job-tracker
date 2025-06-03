@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import Job from '../models/job.model';
-import { jobValidationSchema } from '../validators/job.validator';
+import { jobValidationSchema, updateJobSchema } from '../validators/';
 import {
   BadRequestError,
   NotFoundError,
@@ -69,5 +69,36 @@ export const deleteJob = async (
     });
   } catch (err) {
     return next(err);
+  }
+};
+
+export const updateJob = async (
+  req: any,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const jobId = req.params.id;
+    const { error, value } = updateJobSchema.validate(req.body, {
+      abortEarly: false, 
+    });
+
+    if (error) {
+      throw new BadRequestError(formatJoiError(error));
+    }
+
+    const updatedJob = await Job.findOneAndUpdate(
+      { _id: jobId, deletedAt: null },
+      value,
+      { new: true },
+    );
+
+    if (!updatedJob) {
+      throw new NotFoundError();
+    }
+
+    return SuccessResponse(res, updatedJob);
+  } catch (err) {
+    next(err); // Pass the error to the error handler
   }
 };
