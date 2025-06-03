@@ -7,13 +7,19 @@ export interface job extends Document {
   status: JobStatus;
   dateOfApplication: Date;
   link: string;
+  userId: Types.ObjectId;
 }
 
 export const JobSchema: Schema = new Schema(
   {
     _id: {
-      type: Types.ObjectId, 
-      auto: true, 
+      type: Types.ObjectId,
+      auto: true,
+    },
+    userId: {
+      type: Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
     company: {
       type: String,
@@ -35,6 +41,10 @@ export const JobSchema: Schema = new Schema(
     link: {
       type: String,
       required: true,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true },

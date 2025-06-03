@@ -42,4 +42,8 @@ export const SuccessMessages = {
     en: 'Please check your email',
     ar: 'يرجى التحقق من بريدك الإلكتروني',
   },
+  deletedSuccessfully: {
+    en: 'Deleted successfully',
+    ar: 'تم الحذف بنجاح',
+  },
 };
