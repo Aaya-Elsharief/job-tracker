@@ -1,11 +1,20 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import Job from '../models/job.model';
 import { jobValidationSchema } from '../validators/job.validator';
-import { BadRequestError, NotFoundError, formatJoiError } from '../../../utils/errors/';
-import { SuccessResponse } from '../../../utils/responses/';
+import {
+  BadRequestError,
+  NotFoundError,
+  formatJoiError,
+} from '../../../utils/errors/';
+import {
+  ErrorCodes,
+  ErrorMessages,
+  SuccessMessages,
+  SuccessResponse,
+} from '../../../utils/responses/';
 
 export const createJob = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction,
 ) => {
@@ -20,7 +29,7 @@ export const createJob = async (
     }
 
     // Create a new job using the validated data
-    const newJob = new Job(value);
+    const newJob = new Job({ ...value, userId: req.user.id });
     await newJob.save();
 
     return SuccessResponse(res, newJob);
@@ -29,18 +38,36 @@ export const createJob = async (
   }
 };
 
-export const listJobs = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const listJobs = async (req: any, res: Response, next: NextFunction) => {
   try {
-    const jobs = await Job.find();
+    const jobs = await Job.find({ userId: req.user.id, deletedAt: null });
     if (!jobs) {
       throw new NotFoundError();
     }
     return SuccessResponse(res, jobs);
   } catch (err) {
     next(err); // Pass the error to the error handler
+  }
+};
+
+export const deleteJob = async (
+  req: any,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const jobId = req.params.id;
+    const job = await Job.findOneAndUpdate(
+      { _id: jobId },
+      { deletedAt: Date.now() },
+    );
+    if (!job) {
+      throw new NotFoundError();
+    }
+    return SuccessResponse(res, {
+      message: SuccessMessages.deletedSuccessfully,
+    });
+  } catch (err) {
+    return next(err);
   }
 };
