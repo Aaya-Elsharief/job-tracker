@@ -6,12 +6,7 @@ import {
   NotFoundError,
   formatJoiError,
 } from '../../../utils/errors/';
-import {
-  ErrorCodes,
-  ErrorMessages,
-  SuccessMessages,
-  SuccessResponse,
-} from '../../../utils/responses/';
+import { SuccessMessages, SuccessResponse } from '../../../utils/responses/';
 
 export const createJob = async (
   req: any,
@@ -40,13 +35,56 @@ export const createJob = async (
 
 export const listJobs = async (req: any, res: Response, next: NextFunction) => {
   try {
-    const jobs = await Job.find({ userId: req.user.id, deletedAt: null });
-    if (!jobs) {
-      throw new NotFoundError();
+    const {
+      search,
+      status,
+      company,
+      page = 1,
+      limit = 10,
+      sort = 'createdAt',
+      order = '-1',
+    } = req.query;
+
+    // Build filters
+    const filters: any = {
+      userId: req.user.id,
+      deletedAt: null,
+    };
+
+    if (status) filters.status = status;
+    if (company)
+      filters.company = { $regex: escapeRegex(company), $options: 'i' };
+
+    if (search) {
+      const safeSearch = escapeRegex(search);
+      filters.$or = [
+        { title: { $regex: safeSearch, $options: 'i' } },
+        { company: { $regex: safeSearch, $options: 'i' } },
+        { description: { $regex: safeSearch, $options: 'i' } },
+        {role : { $regex: safeSearch, $options: 'i' } },
+      ];
     }
-    return SuccessResponse(res, jobs);
+
+    // Build sort object
+    const sortObj: any = {};
+    sortObj[sort] = order === 'desc' ? -1 : 1;
+
+    const jobs = await Job.find(filters)
+      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(parseInt(limit))
+      .sort(sortObj);
+
+    const total = await Job.countDocuments(filters);
+
+    return SuccessResponse(res, {
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: Math.ceil(total / parseInt(limit)),
+      jobs,
+    });
   } catch (err) {
-    next(err); // Pass the error to the error handler
+    next(err);
   }
 };
 
@@ -80,7 +118,7 @@ export const updateJob = async (
   try {
     const jobId = req.params.id;
     const { error, value } = updateJobSchema.validate(req.body, {
-      abortEarly: false, 
+      abortEarly: false,
     });
 
     if (error) {
@@ -101,4 +139,7 @@ export const updateJob = async (
   } catch (err) {
     next(err); // Pass the error to the error handler
   }
+};
+export const escapeRegex = (text: string): string => {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 };
