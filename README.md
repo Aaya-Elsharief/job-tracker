@@ -1,4 +1,4 @@
-# 📌 Job Tracker (Backend Only)
+# 📌 Job Tracker
 
 **Job Tracker** is a backend API built with **Node.js**, **Express**, and **MongoDB** that helps users manage and track their job applications. It provides core features like registration, login, role-based access, and CRUD operations for job entries.
 
